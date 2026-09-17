@@ -1,4 +1,11 @@
-const { Client, GatewayIntentBits } = require("discord.js");
+const {
+    Client,
+    GatewayIntentBits,
+    REST,
+    Routes,
+    SlashCommandBuilder
+} = require("discord.js");
+
 const express = require("express");
 
 const app = express();
@@ -13,9 +20,7 @@ app.listen(process.env.PORT || 3000, () => {
 
 const client = new Client({
     intents: [
-        GatewayIntentBits.Guilds,
-        GatewayIntentBits.GuildMessages,
-        GatewayIntentBits.MessageContent
+        GatewayIntentBits.Guilds
     ]
 });
 
@@ -27,30 +32,90 @@ const WHITELIST = [
     "791713482860265503"
 ];
 
+const commands = [
+    new SlashCommandBuilder()
+        .setName("tool")
+        .setDescription("Give a Tool to a Roblox player.")
+        .addStringOption(option =>
+            option
+                .setName("player")
+                .setDescription("Roblox username")
+                .setRequired(true)
+        )
+        .addStringOption(option =>
+            option
+                .setName("tool")
+                .setDescription("Tool name")
+                .setRequired(true)
+        ),
+
+    new SlashCommandBuilder()
+        .setName("whitelist")
+        .setDescription("Whitelist a Roblox UserId.")
+        .addStringOption(option =>
+            option
+                .setName("user_id")
+                .setDescription("Roblox UserId")
+                .setRequired(true)
+        ),
+
+    new SlashCommandBuilder()
+        .setName("unwhitelist")
+        .setDescription("Remove a Roblox UserId from the whitelist.")
+        .addStringOption(option =>
+            option
+                .setName("user_id")
+                .setDescription("Roblox UserId")
+                .setRequired(true)
+        ),
+
+    new SlashCommandBuilder()
+        .setName("whitelistlist")
+        .setDescription("Show the Roblox whitelist.")
+].map(command => command.toJSON());
+
+const rest = new REST({ version: "10" })
+    .setToken(process.env.DISCORD_TOKEN);
+
+(async () => {
+    try {
+        console.log("Registering slash commands...");
+
+        await rest.put(
+            Routes.applicationCommands(process.env.CLIENT_ID),
+            {
+                body: commands
+            }
+        );
+
+        console.log("Slash commands registered!");
+    } catch (error) {
+        console.error(error);
+    }
+})();
+
 client.once("ready", () => {
     console.log(`${client.user.tag} is online!`);
 });
 
-client.on("messageCreate", async (message) => {
-    if (message.author.bot) return;
+client.on("interactionCreate", async interaction => {
+    if (!interaction.isChatInputCommand()) return;
 
-    const args = message.content.trim().split(/\s+/);
-    const command = args[0].toLowerCase();
+    const hasDeveloperRole =
+        interaction.inGuild() &&
+        interaction.member.roles.cache.has(DEVELOPER_ROLE_ID);
 
-    const hasDeveloperRole = message.member.roles.cache.has(DEVELOPER_ROLE_ID);
-    const isWhitelisted = WHITELIST.includes(message.author.id);
+    const isWhitelisted = WHITELIST.includes(interaction.user.id);
 
     if (!hasDeveloperRole && !isWhitelisted) {
-        return;
+        return interaction.reply(
+            "You don't have permission to use this command."
+        );
     }
 
-    if (command === "!tool") {
-        if (!args[1] || !args[2]) {
-            return message.reply("Usage: `!tool PlayerName ToolName`");
-        }
-
-        const player = args[1];
-        const tool = args.slice(2).join(" ");
+    if (interaction.commandName === "tool") {
+        const player = interaction.options.getString("player");
+        const tool = interaction.options.getString("tool");
 
         try {
             const response = await fetch(`${API_URL}/give`, {
@@ -67,22 +132,23 @@ client.on("messageCreate", async (message) => {
             const data = await response.json();
 
             if (data.success) {
-                return message.reply(`**${tool}** was given to **${player}**.`);
+                return interaction.reply(
+                    `**${tool}** was given to **${player}**.`
+                );
             }
 
-            return message.reply(`❌ ${data.message}`);
+            return interaction.reply(data.message);
         } catch (error) {
             console.error(error);
-            return message.reply("Could not connect to the API.");
+
+            return interaction.reply(
+                "Could not connect to the API."
+            );
         }
     }
 
-    if (command === "!whitelist") {
-        if (!args[1]) {
-            return message.reply("Usage: `!whitelist UserId`");
-        }
-
-        const userId = args[1];
+    if (interaction.commandName === "whitelist") {
+        const userId = interaction.options.getString("user_id");
 
         try {
             const response = await fetch(`${API_URL}/whitelist`, {
@@ -98,22 +164,23 @@ client.on("messageCreate", async (message) => {
             const data = await response.json();
 
             if (data.success) {
-                return message.reply(`**${userId}** has been whitelisted.`);
+                return interaction.reply(
+                    `**${userId}** has been whitelisted.`
+                );
             }
 
-            return message.reply(`❌ ${data.message}`);
+            return interaction.reply(data.message);
         } catch (error) {
             console.error(error);
-            return message.reply("Could not connect to the API.");
+
+            return interaction.reply(
+                "Could not connect to the API."
+            );
         }
     }
 
-    if (command === "!unwhitelist") {
-        if (!args[1]) {
-            return message.reply("Usage: `!unwhitelist UserId`");
-        }
-
-        const userId = args[1];
+    if (interaction.commandName === "unwhitelist") {
+        const userId = interaction.options.getString("user_id");
 
         try {
             const response = await fetch(`${API_URL}/unwhitelist`, {
@@ -129,35 +196,47 @@ client.on("messageCreate", async (message) => {
             const data = await response.json();
 
             if (data.success) {
-                return message.reply(`**${userId}** has been removed from the whitelist.`);
+                return interaction.reply(
+                    `**${userId}** has been removed from the whitelist.`
+                );
             }
 
-            return message.reply(`❌ ${data.message}`);
+            return interaction.reply(data.message);
         } catch (error) {
             console.error(error);
-            return message.reply("Could not connect to the API.");
+
+            return interaction.reply(
+                "Could not connect to the API."
+            );
         }
     }
 
-    if (command === "!whitelistlist") {
+    if (interaction.commandName === "whitelistlist") {
         try {
             const response = await fetch(`${API_URL}/whitelist`);
             const data = await response.json();
 
             if (!data.success) {
-                return message.reply(`❌ ${data.message}`);
+                return interaction.reply(data.message);
             }
 
             if (data.whitelist.length === 0) {
-                return message.reply("Whitelist is empty.");
+                return interaction.reply("Whitelist is empty.");
             }
 
-            return message.reply(
-                `**Whitelist:**\n${data.whitelist.map((id, index) => `${index + 1}. ${id}`).join("\n")}`
+            const list = data.whitelist
+                .map((id, index) => `${index + 1}. ${id}`)
+                .join("\n");
+
+            return interaction.reply(
+                `**Whitelist:**\n${list}`
             );
         } catch (error) {
             console.error(error);
-            return message.reply("Could not connect to the API.");
+
+            return interaction.reply(
+                "Could not connect to the API."
+            );
         }
     }
 });
