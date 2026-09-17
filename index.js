@@ -36,6 +36,8 @@ const commands = [
     new SlashCommandBuilder()
         .setName("tool")
         .setDescription("Give a Tool to a Roblox player.")
+        .setContexts(0, 1, 2)
+        .setIntegrationTypes(0, 1)
         .addStringOption(option =>
             option
                 .setName("player")
@@ -52,6 +54,8 @@ const commands = [
     new SlashCommandBuilder()
         .setName("whitelist")
         .setDescription("Whitelist a Roblox UserId.")
+        .setContexts(0, 1, 2)
+        .setIntegrationTypes(0, 1)
         .addStringOption(option =>
             option
                 .setName("user_id")
@@ -62,6 +66,8 @@ const commands = [
     new SlashCommandBuilder()
         .setName("unwhitelist")
         .setDescription("Remove a Roblox UserId from the whitelist.")
+        .setContexts(0, 1, 2)
+        .setIntegrationTypes(0, 1)
         .addStringOption(option =>
             option
                 .setName("user_id")
@@ -72,6 +78,8 @@ const commands = [
     new SlashCommandBuilder()
         .setName("whitelistlist")
         .setDescription("Show the Roblox whitelist.")
+        .setContexts(0, 1, 2)
+        .setIntegrationTypes(0, 1)
 ].map(command => command.toJSON());
 
 const rest = new REST({ version: "10" })
