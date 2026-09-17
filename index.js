@@ -16,8 +16,8 @@ client.on("messageCreate", (message) => {
     if (message.author.bot) return;
 
     if (message.content === "!test") {
-        message.reply("Çalışıyor!");
+        message.reply("working");
     }
 });
 
-client.login(");
+client.login(process.env.DISCORD_TOKEN);
