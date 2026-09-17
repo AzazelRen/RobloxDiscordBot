@@ -32,6 +32,23 @@ const WHITELIST = [
     "791713482860265503"
 ];
 
+async function apiRequest(url, options = {}) {
+    const response = await fetch(url, options);
+    const text = await response.text();
+
+    console.log(`API ${response.status}:`, text);
+
+    if (!response.ok) {
+        throw new Error(`API returned ${response.status}`);
+    }
+
+    try {
+        return JSON.parse(text);
+    } catch {
+        throw new Error("API returned invalid JSON");
+    }
+}
+
 const commands = [
     new SlashCommandBuilder()
         .setName("tool")
@@ -126,7 +143,7 @@ client.on("interactionCreate", async interaction => {
         const tool = interaction.options.getString("tool");
 
         try {
-            const response = await fetch(`${API_URL}/give`, {
+            const data = await apiRequest(`${API_URL}/give`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
@@ -136,8 +153,6 @@ client.on("interactionCreate", async interaction => {
                     tool: tool
                 })
             });
-
-            const data = await response.json();
 
             if (data.success) {
                 return interaction.reply(
@@ -159,7 +174,7 @@ client.on("interactionCreate", async interaction => {
         const userId = interaction.options.getString("user_id");
 
         try {
-            const response = await fetch(`${API_URL}/whitelist`, {
+            const data = await apiRequest(`${API_URL}/whitelist`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
@@ -168,8 +183,6 @@ client.on("interactionCreate", async interaction => {
                     userId: userId
                 })
             });
-
-            const data = await response.json();
 
             if (data.success) {
                 return interaction.reply(
@@ -191,7 +204,7 @@ client.on("interactionCreate", async interaction => {
         const userId = interaction.options.getString("user_id");
 
         try {
-            const response = await fetch(`${API_URL}/unwhitelist`, {
+            const data = await apiRequest(`${API_URL}/unwhitelist`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
@@ -200,8 +213,6 @@ client.on("interactionCreate", async interaction => {
                     userId: userId
                 })
             });
-
-            const data = await response.json();
 
             if (data.success) {
                 return interaction.reply(
@@ -221,8 +232,7 @@ client.on("interactionCreate", async interaction => {
 
     if (interaction.commandName === "whitelistlist") {
         try {
-            const response = await fetch(`${API_URL}/whitelist`);
-            const data = await response.json();
+            const data = await apiRequest(`${API_URL}/whitelist`);
 
             if (!data.success) {
                 return interaction.reply(data.message);
