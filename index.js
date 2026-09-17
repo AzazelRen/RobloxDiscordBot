@@ -8,6 +8,8 @@ const client = new Client({
     ]
 });
 
+const DEVELOPER_ROLE_ID = "1550020338887172096";
+
 client.once("ready", () => {
     console.log(`${client.user.tag} is online!`);
 });
@@ -15,15 +17,11 @@ client.once("ready", () => {
 client.on("messageCreate", async (message) => {
     if (message.author.bot) return;
 
-    const args = message.content.split(" ");
+    const args = message.content.trim().split(/\s+/);
 
     if (args[0] !== "!tool") return;
 
-    const hasRole = message.member.roles.cache.some(
-        role => role.name === "Developer"
-    );
-
-    if (!hasRole) {
+    if (!message.member.roles.cache.has(DEVELOPER_ROLE_ID)) {
         return message.reply("You don't have permission to use this command.");
     }
 
@@ -52,13 +50,13 @@ client.on("messageCreate", async (message) => {
         const data = await response.json();
 
         if (data.success) {
-            message.reply(`**${tool}** was given to **${player}**.`);
-        } else {
-            message.reply(`❌ ${data.message}`);
+            return message.reply(`**${tool}** was given to **${player}**.`);
         }
+
+        return message.reply(`❌ ${data.message}`);
     } catch (error) {
         console.error(error);
-        message.reply("Could not connect to the API.");
+        return message.reply("Could not connect to the API.");
     }
 });
 
