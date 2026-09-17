@@ -1,4 +1,15 @@
 const { Client, GatewayIntentBits } = require("discord.js");
+const express = require("express");
+
+const app = express();
+
+app.get("/", (req, res) => {
+    res.send("Discord bot is online!");
+});
+
+app.listen(process.env.PORT || 3000, () => {
+    console.log("Web server is online!");
+});
 
 const client = new Client({
     intents: [
