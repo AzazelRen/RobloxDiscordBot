@@ -44,7 +44,7 @@ client.on("messageCreate", async (message) => {
         const data = await response.json();
 
         if (data.success) {
-            message.reply(`✅ ${player} oyuncusuna **${tool}** gönderildi.`);
+            message.reply(`**${tool}** was given to **${player}**.`);
         } else {
             message.reply(`❌ ${data.message}`);
         }
