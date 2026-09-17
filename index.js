@@ -9,6 +9,11 @@ const client = new Client({
 });
 
 const DEVELOPER_ROLE_ID = "1550020338887172096";
+
+const WHITELIST = [
+    "791713482860265503"
+];
+
 client.once("ready", () => {
     console.log(`${client.user.tag} is online!`);
 });
@@ -20,7 +25,10 @@ client.on("messageCreate", async (message) => {
 
     if (args[0] !== "!tool") return;
 
-    if (!message.member.roles.cache.has(DEVELOPER_ROLE_ID)) {
+    const hasDeveloperRole = message.member.roles.cache.has(DEVELOPER_ROLE_ID);
+    const isWhitelisted = WHITELIST.includes(message.author.id);
+
+    if (!hasDeveloperRole && !isWhitelisted) {
         return message.reply("You don't have permission to use this command.");
     }
 
