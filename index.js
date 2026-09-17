@@ -9,7 +9,6 @@ const client = new Client({
 });
 
 const DEVELOPER_ROLE_ID = "1550020338887172096";
-
 client.once("ready", () => {
     console.log(`${client.user.tag} is online!`);
 });
