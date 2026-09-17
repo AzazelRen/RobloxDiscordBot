@@ -5,6 +5,7 @@
     if [ -z "$DISCORD_TOKEN" ]; then
       echo "TOKEN YOK"
       exit 1
+    else
+      echo "TOKEN GITHUB'A GELİYOR"
     fi
-    echo "TOKEN GITHUB'A GELİYOR"
     node index.js
