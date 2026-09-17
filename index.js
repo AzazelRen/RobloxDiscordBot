@@ -9,7 +9,7 @@ const client = new Client({
 });
 
 client.once("ready", () => {
-    console.log(`${client.user.tag} aktif!`);
+    console.log(`${client.user.tag} is online!`);
 });
 
 client.on("messageCreate", async (message) => {
@@ -19,8 +19,16 @@ client.on("messageCreate", async (message) => {
 
     if (args[0] !== "!tool") return;
 
+    const hasRole = message.member.roles.cache.some(
+        role => role.name === "Developer"
+    );
+
+    if (!hasRole) {
+        return message.reply("You don't have permission to use this command.");
+    }
+
     if (!args[1] || !args[2]) {
-        return message.reply("Kullanım: `!tool OyuncuAdı ToolAdı`");
+        return message.reply("Usage: `!tool PlayerName ToolName`");
     }
 
     const player = args[1];
@@ -50,7 +58,7 @@ client.on("messageCreate", async (message) => {
         }
     } catch (error) {
         console.error(error);
-        message.reply("❌ API'ye bağlanılamadı.");
+        message.reply("Could not connect to the API.");
     }
 });
 
