@@ -109,7 +109,19 @@ const commands = [
         .setName("whitelistlist")
         .setDescription("Show the Roblox whitelist.")
         .setContexts(0, 1, 2)
+        .setIntegrationTypes(0, 1),
+
+    new SlashCommandBuilder()
+        .setName("say")
+        .setDescription("Send a message as the bot.")
+        .setContexts(0, 1, 2)
         .setIntegrationTypes(0, 1)
+        .addStringOption(option =>
+            option
+                .setName("text")
+                .setDescription("Message to send")
+                .setRequired(true)
+        )
 ].map(command => command.toJSON());
 
 const rest = new REST({ version: "10" })
@@ -164,6 +176,17 @@ client.on("interactionCreate", async interaction => {
         return interaction.reply(
             "You don't have permission to use this command."
         );
+    }
+
+    if (interaction.commandName === "say") {
+        const text = interaction.options.getString("text");
+
+        return interaction.reply({
+            content: text,
+            allowedMentions: {
+                parse: []
+            }
+        });
     }
 
     await interaction.deferReply();
