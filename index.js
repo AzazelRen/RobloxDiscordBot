@@ -32,20 +32,31 @@ const WHITELIST = [
     "791713482860265503"
 ];
 
-async function apiRequest(url, options = {}) {
-    const response = await fetch(url, options);
-    const text = await response.text();
+async function apiRequest(url, options = {}, retries = 3) {
+    for (let attempt = 1; attempt <= retries; attempt++) {
+        try {
+            const response = await fetch(url, options);
+            const text = await response.text();
 
-    console.log(`API ${response.status}:`, text);
+            console.log(`API ${response.status}:`, text);
 
-    if (!response.ok) {
-        throw new Error(`API returned ${response.status}`);
-    }
+            if (!response.ok) {
+                throw new Error(`API returned ${response.status}`);
+            }
 
-    try {
-        return JSON.parse(text);
-    } catch {
-        throw new Error("API returned invalid JSON");
+            return JSON.parse(text);
+        } catch (error) {
+            console.error(
+                `API attempt ${attempt} failed:`,
+                error.message
+            );
+
+            if (attempt < retries) {
+                await new Promise(resolve => setTimeout(resolve, 3000));
+            } else {
+                throw error;
+            }
+        }
     }
 }
 
@@ -119,8 +130,18 @@ const rest = new REST({ version: "10" })
     }
 })();
 
-client.once("ready", () => {
+client.once("ready", async () => {
     console.log(`${client.user.tag} is online!`);
+
+    try {
+        await apiRequest(`${API_URL}/whitelist`);
+        console.log("API connection successful!");
+    } catch (error) {
+        console.error(
+            "API connection failed:",
+            error.message
+        );
+    }
 });
 
 client.on("interactionCreate", async interaction => {
