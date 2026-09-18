@@ -65,25 +65,25 @@ async function apiRequest(url, options = {}, retries = 3) {
 const commands = [
     new SlashCommandBuilder()
         .setName("tool")
-        .setDescription("Give a Tool to a Roblox player.")
+        .setDescription("give a Tool to a player.")
         .setContexts(0, 1, 2)
         .setIntegrationTypes(0, 1)
         .addStringOption(option =>
             option
                 .setName("player")
-                .setDescription("Roblox username")
+                .setDescription("user")
                 .setRequired(true)
         )
         .addStringOption(option =>
             option
                 .setName("tool")
-                .setDescription("Tool name")
+                .setDescription("tool")
                 .setRequired(true)
         ),
 
     new SlashCommandBuilder()
         .setName("whitelist")
-        .setDescription("Whitelist a Roblox UserId.")
+        .setDescription("whitelist a user.")
         .setContexts(0, 1, 2)
         .setIntegrationTypes(0, 1)
         .addStringOption(option =>
@@ -95,7 +95,7 @@ const commands = [
 
     new SlashCommandBuilder()
         .setName("unwhitelist")
-        .setDescription("Remove a Roblox UserId from the whitelist.")
+        .setDescription("remove a user from the whitelist.")
         .setContexts(0, 1, 2)
         .setIntegrationTypes(0, 1)
         .addStringOption(option =>
@@ -107,13 +107,13 @@ const commands = [
 
     new SlashCommandBuilder()
         .setName("whitelistlist")
-        .setDescription("Show the Roblox whitelist.")
+        .setDescription("show the whitelist.")
         .setContexts(0, 1, 2)
         .setIntegrationTypes(0, 1),
 
     new SlashCommandBuilder()
         .setName("say")
-        .setDescription("Send a message as the bot.")
+        .setDescription("send a message as the bot.")
         .setContexts(0, 1, 2)
         .setIntegrationTypes(0, 1)
         .addStringOption(option =>
