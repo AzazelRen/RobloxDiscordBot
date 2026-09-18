@@ -1,3 +1,5 @@
+require("./api");
+
 const {
     Client,
     GatewayIntentBits,
