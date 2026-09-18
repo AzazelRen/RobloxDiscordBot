@@ -72,8 +72,8 @@ const commands = [
         .setIntegrationTypes(0, 1)
         .addStringOption(option =>
             option
-                .setName("player")
-                .setDescription("user")
+                .setName("user_id")
+                .setDescription("Roblox User ID")
                 .setRequired(true)
         )
         .addStringOption(option =>
@@ -194,7 +194,7 @@ client.on("interactionCreate", async interaction => {
     await interaction.deferReply();
 
     if (interaction.commandName === "tool") {
-        const player = interaction.options.getString("player");
+        const userId = interaction.options.getString("user_id");
         const tool = interaction.options.getString("tool");
 
         try {
@@ -204,14 +204,14 @@ client.on("interactionCreate", async interaction => {
                     "Content-Type": "application/json"
                 },
                 body: JSON.stringify({
-                    player: player,
+                    player: userId,
                     tool: tool
                 })
             });
 
             if (data.success) {
                 return interaction.editReply(
-                    `**${tool}** was given to **${player}**.`
+                    `**${tool}** was given to **${userId}**.`
                 );
             }
 
