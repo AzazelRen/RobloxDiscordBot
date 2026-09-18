@@ -26,7 +26,7 @@ const client = new Client({
     ]
 });
 
-const API_URL = "https://robloxdiscordbot-1-x7nl.onrender.com/";
+const API_URL = "https://robloxdiscordbot-1-x7nl.onrender.com";
 
 const DEVELOPER_ROLE_ID = "1550020338887172096";
 
