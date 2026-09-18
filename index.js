@@ -20,7 +20,9 @@ app.listen(process.env.PORT || 3000, () => {
 
 const client = new Client({
     intents: [
-        GatewayIntentBits.Guilds
+        GatewayIntentBits.Guilds,
+        GatewayIntentBits.GuildMessages,
+        GatewayIntentBits.MessageContent
     ]
 });
 
@@ -141,6 +143,14 @@ client.once("ready", async () => {
             "API connection failed:",
             error.message
         );
+    }
+});
+
+client.on("messageCreate", message => {
+    if (message.author.bot) return;
+
+    if (message.content.toLowerCase() === "rat") {
+        message.channel.send("🐀");
     }
 });
 
