@@ -139,10 +139,7 @@ client.once("ready", async () => {
         await apiRequest(`${API_URL}/whitelist`);
         console.log("API connection successful!");
     } catch (error) {
-        console.error(
-            "API connection failed:",
-            error.message
-        );
+        console.error("API connection failed:", error.message);
     }
 });
 
@@ -169,6 +166,8 @@ client.on("interactionCreate", async interaction => {
         );
     }
 
+    await interaction.deferReply();
+
     if (interaction.commandName === "tool") {
         const player = interaction.options.getString("player");
         const tool = interaction.options.getString("tool");
@@ -186,16 +185,16 @@ client.on("interactionCreate", async interaction => {
             });
 
             if (data.success) {
-                return interaction.reply(
+                return interaction.editReply(
                     `**${tool}** was given to **${player}**.`
                 );
             }
 
-            return interaction.reply(data.message);
+            return interaction.editReply(data.message);
         } catch (error) {
             console.error(error);
 
-            return interaction.reply(
+            return interaction.editReply(
                 "Could not connect to the API."
             );
         }
@@ -216,16 +215,16 @@ client.on("interactionCreate", async interaction => {
             });
 
             if (data.success) {
-                return interaction.reply(
+                return interaction.editReply(
                     `**${userId}** has been whitelisted.`
                 );
             }
 
-            return interaction.reply(data.message);
+            return interaction.editReply(data.message);
         } catch (error) {
             console.error(error);
 
-            return interaction.reply(
+            return interaction.editReply(
                 "Could not connect to the API."
             );
         }
@@ -246,16 +245,16 @@ client.on("interactionCreate", async interaction => {
             });
 
             if (data.success) {
-                return interaction.reply(
+                return interaction.editReply(
                     `**${userId}** has been removed from the whitelist.`
                 );
             }
 
-            return interaction.reply(data.message);
+            return interaction.editReply(data.message);
         } catch (error) {
             console.error(error);
 
-            return interaction.reply(
+            return interaction.editReply(
                 "Could not connect to the API."
             );
         }
@@ -266,24 +265,24 @@ client.on("interactionCreate", async interaction => {
             const data = await apiRequest(`${API_URL}/whitelist`);
 
             if (!data.success) {
-                return interaction.reply(data.message);
+                return interaction.editReply(data.message);
             }
 
             if (data.whitelist.length === 0) {
-                return interaction.reply("Whitelist is empty.");
+                return interaction.editReply("Whitelist is empty.");
             }
 
             const list = data.whitelist
                 .map((id, index) => `${index + 1}. ${id}`)
                 .join("\n");
 
-            return interaction.reply(
+            return interaction.editReply(
                 `**Whitelist:**\n${list}`
             );
         } catch (error) {
             console.error(error);
 
-            return interaction.reply(
+            return interaction.editReply(
                 "Could not connect to the API."
             );
         }
