@@ -1,10 +1,28 @@
 const express = require("express");
+const fs = require("fs");
 
 const app = express();
 app.use(express.json());
 
+const DATA_FILE = "./whitelist.json";
+
 let commands = [];
 let whitelist = [];
+
+if (fs.existsSync(DATA_FILE)) {
+    try {
+        whitelist = JSON.parse(fs.readFileSync(DATA_FILE, "utf8"));
+    } catch {
+        whitelist = [];
+    }
+}
+
+function saveWhitelist() {
+    fs.writeFileSync(
+        DATA_FILE,
+        JSON.stringify(whitelist, null, 2)
+    );
+}
 
 app.post("/give", (req, res) => {
     const { player, tool } = req.body;
@@ -51,6 +69,7 @@ app.post("/whitelist", (req, res) => {
     }
 
     whitelist.push(userId);
+    saveWhitelist();
 
     console.log(`Whitelisted: ${userId}`);
 
@@ -79,6 +98,7 @@ app.post("/unwhitelist", (req, res) => {
     }
 
     whitelist.splice(index, 1);
+    saveWhitelist();
 
     console.log(`Removed from whitelist: ${userId}`);
 
